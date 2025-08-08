@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dictado B y D</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    #wordContainer {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    #score, #timer {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    #buttonsContainer {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dictado de Palabras con B y D</h1>
+  <p>Escuchá la palabra y completala haciendo clic en las letras faltantes</p>
+  <div id="timer">Tiempo: <span id="timeLeft">120</span>s</div>
+  <div id="wordContainer"></div>
+  <div id="buttonsContainer">
+    <button onclick="insertLetter('b')">B</button>
+    <button onclick="insertLetter('d')">D</button>
+  </div>
+  <p id="feedback"></p>
+  <button onclick="nextWord()">Siguiente palabra</button>
+  <div id="score">Puntaje: 0</div>
+
+  <script>
+    const palabras = [
+      "abundante", "abandonado", "bandido", "debilidad", "bondad",
+      "bodega", "abdomen", "bidón", "bordado", "doble",
+      "dibujo", "debatir", "subida", "abducción", "cebada",
+      "abierto", "abordaje", "debut", "bombardeo", "debajo",
+      "obedecer", "adverbio", "bandera", "doblado", "blanda",
+      "bandidaje", "habilidad", "doblaje", "abanderado", "advertencia",
+      "bidireccional", "abundancia", "abolido", "debido", "abdicar",
+      "biodiversidad", "subdividir", "abismado", "embadurnar", "bordón",
+      "bordear", "doblez", "oblicuidad", "abultado", "bombardeado",
+      "bandoneón", "subdelegado", "subproducto", "subordinado", "laboridad"
+    ];
+
+    let currentWord = "";
+    let displayWord = "";
+    let score = 0;
+    let timeLeft = 120;
+    let timer;
+
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      speechSynthesis.speak(utterance);
+    }
+
+    function hideBandD(word) {
+      return word.replace(/b/gi, '_').replace(/d/gi, '_');
+    }
+
+    function nextWord() {
+      if (timeLeft <= 0) return;
+      document.getElementById('feedback').textContent = '';
+      currentWord = palabras[Math.floor(Math.random() * palabras.length)];
+      displayWord = hideBandD(currentWord);
+      document.getElementById('wordContainer').textContent = displayWord;
+      speak(currentWord);
+    }
+
+    function insertLetter(letter) {
+      const index = displayWord.indexOf('_');
+      if (index === -1) return;
+      displayWord = displayWord.substring(0, index) + letter + displayWord.substring(index + 1);
+      document.getElementById('wordContainer').textContent = displayWord;
+
+      if (!displayWord.includes('_')) {
+        checkAnswer();
+      }
+    }
+
+    function checkAnswer() {
+      const feedback = document.getElementById('feedback');
+      if (displayWord.toLowerCase() === currentWord.toLowerCase()) {
+        feedback.textContent = '¡Correcto!';
+        feedback.className = 'correct';
+        score++;
+      } else {
+        feedback.textContent = `Incorrecto. Era: ${currentWord}`;
+        feedback.className = 'incorrect';
+      }
+      document.getElementById('score').textContent = `Puntaje: ${score}`;
+    }
+
+    function startTimer() {
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timeLeft').textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          document.getElementById('feedback').textContent = `¡Tiempo terminado! Puntaje final: ${score}`;
+          document.querySelectorAll('#buttonsContainer button').forEach(btn => btn.disabled = true);
+        }
+      }, 1000);
+    }
+
+    window.onload = () => {
+      nextWord();
+      startTimer();
+    };
+  </script>
+</body>
+</html>
