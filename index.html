@@ -44,7 +44,9 @@
     <button onclick="insertLetter('d')">D</button>
   </div>
   <p id="feedback"></p>
-  <button onclick="nextWord()">Siguiente palabra</button>
+    <button onclick="repeatWord()">Repetir palabra</button>
+    <button onclick="nextWord()">Siguiente palabra</button>
+
   <div id="score">Puntaje: 0</div>
 
   <script>
@@ -72,7 +74,11 @@
       utterance.lang = 'es-ES';
       speechSynthesis.speak(utterance);
     }
-
+function repeatWord() {
+  if (currentWord) {
+    speak(currentWord);
+  }
+}
     function hideBandD(word) {
       return word.replace(/b/gi, '_').replace(/d/gi, '_');
     }
